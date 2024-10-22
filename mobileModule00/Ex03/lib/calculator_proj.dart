@@ -1,3 +1,5 @@
+import 'dart:js_interop';
+
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 
@@ -55,9 +57,12 @@ class CalculatorState extends State<Calculator> {
         displayText = displayText.substring(0, displayText.length - 1);
         if (displayText == "") displayText = "0";
       } else if (buttonText == "=") {
-        letstart(displayText);
+        if (int.tryParse(displayText[displayText.length - 1]) != null)
+        {
+          letstart(displayText);
+        }
       } else {
-        displayText += buttonText;
+          displayText += buttonText;
       }
     });
   }
@@ -66,13 +71,13 @@ class CalculatorState extends State<Calculator> {
     return Expanded(
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.all(20.0),
           side: const BorderSide(color: Color.fromARGB(255, 74, 0, 177)),
           backgroundColor: const Color.fromARGB(255, 74, 0, 177),
         ),
         child: Text(
           buttonText,
-          style: TextStyle(fontSize: 40.0, color: textColor),
+          style: TextStyle(fontSize: 20.0, color: textColor),
         ),
         onPressed: () => buttonPressed(buttonText),
       ),

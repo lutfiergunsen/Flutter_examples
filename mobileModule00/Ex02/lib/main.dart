@@ -7,12 +7,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Flutter Calculator',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-      ),
-      home: const Calculator(),
+      home: Calculator(),
     );
   }
 }
@@ -25,7 +22,7 @@ class Calculator extends StatefulWidget {
 }
 
 class CalculatorState extends State<Calculator> {
-  
+
   void buttonPressed(String buttonText) {
     debugPrint('Button pressed: $buttonText');
   }
@@ -34,13 +31,13 @@ class CalculatorState extends State<Calculator> {
     return Expanded(
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.all(24.0),
-          side: const BorderSide(color: Colors.grey),
+          padding: const EdgeInsets.all(20.0),
+          side: const BorderSide(color: Color.fromARGB(255, 74, 0, 177)),
+          backgroundColor: const Color.fromARGB(255, 74, 0, 177),
         ),
         child: Text(
           buttonText,
-          style: TextStyle(
-              fontSize: 40.0, fontWeight: FontWeight.bold, color: textColor),
+          style: TextStyle(fontSize: 20.0, color: textColor),
         ),
         onPressed: () => buttonPressed(buttonText),
       ),
@@ -51,65 +48,67 @@ class CalculatorState extends State<Calculator> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Calculator",),
-        foregroundColor: Colors.black,
-        backgroundColor: Colors.white,
+        title: const Text("Calculator"),
+        backgroundColor: const Color.fromARGB(255, 74, 0, 177),
       ),
-      body: Column(
+      body: Container(
+        color: const Color.fromARGB(255, 68, 0, 254),
+        child: Column(
         children: <Widget>[
           const Row(
-          children: <Widget>[
-        Expanded(
-          child: Column( 
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              Text(
-                "0",
-                style: TextStyle(fontSize: 40, color: Colors.white),
-              ),
-              Text(
-                "0",
-                style: TextStyle(fontSize: 40, color: Colors.white),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    Text(
+                      '0',
+                      style: TextStyle(fontSize: 40, color: Colors.white),
+                    ),
+                    Text(
+                      '0',
+                      style: TextStyle(fontSize: 40, color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-        ),
-      ],
-    ),
           const Spacer(),
-          Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  buildButton("7"),
+          Container(
+            color: const Color.fromARGB(255, 74, 0, 177),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    buildButton("7"),
                     buildButton("8"),
                     buildButton("9"),
                     buildButton("C", textColor: Colors.red),
                     buildButton("AC", textColor: Colors.red),
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  buildButton("4"),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    buildButton("4"),
                     buildButton("5"),
                     buildButton("6"),
                     buildButton("+", textColor: Colors.blue),
                     buildButton("-", textColor: Colors.blue),
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  buildButton("1"),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    buildButton("1"),
                     buildButton("2"),
                     buildButton("3"),
                     buildButton("X", textColor: Colors.blue),
                     buildButton("/", textColor: Colors.blue),
-                ],
-              ),
-              
-              Row(
-                children: <Widget>[
-                  buildButton("0"),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    buildButton("0"),
                     buildButton("."),
                     buildButton("00"),
                     buildButton("="),
@@ -119,12 +118,14 @@ class CalculatorState extends State<Calculator> {
                         style: TextStyle(fontSize: 24, color: Colors.white),
                       ),
                     ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
+    ),
     );
   }
 }

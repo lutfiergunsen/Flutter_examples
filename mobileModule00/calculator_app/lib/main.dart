@@ -36,7 +36,7 @@ class CalculatorState extends State<Calculator> {
 
       ContextModel cm = ContextModel();
       double eval = exp.evaluate(EvaluationType.REAL, cm);
-      setState(() {
+      setState(() {  
         res = eval.toString();
       });
       debugPrint('Sonuç: $eval');
@@ -65,7 +65,7 @@ class CalculatorState extends State<Calculator> {
     });
   }
 
-  Widget buildButton(String buttonText, {Color textColor = Colors.black}) {
+  Widget buildButton(String buttonText, {Color textColor = Colors.white}) {
     return Expanded(
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(

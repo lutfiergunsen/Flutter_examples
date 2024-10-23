@@ -25,12 +25,9 @@ class Calculator extends StatefulWidget {
 }
 
 class CalculatorState extends State<Calculator> {
-  void logButtonPress(String buttonText) {
-    debugPrint('Button pressed: $buttonText');
-  }
-
+  
   void buttonPressed(String buttonText) {
-    logButtonPress(buttonText);
+    debugPrint('Button pressed: $buttonText');
   }
 
   Widget buildButton(String buttonText, {Color textColor = Colors.white}) {
@@ -85,41 +82,43 @@ class CalculatorState extends State<Calculator> {
               Row(
                 children: <Widget>[
                   buildButton("7"),
-                  buildButton("8"),
-                  buildButton("9"),
-                  buildButton("/", textColor: Colors.blue),
+                    buildButton("8"),
+                    buildButton("9"),
+                    buildButton("C", textColor: Colors.red),
+                    buildButton("AC", textColor: Colors.red),
                 ],
               ),
               Row(
                 children: <Widget>[
                   buildButton("4"),
-                  buildButton("5"),
-                  buildButton("6"),
-                  buildButton("*", textColor: Colors.blue),
+                    buildButton("5"),
+                    buildButton("6"),
+                    buildButton("+", textColor: Colors.blue),
+                    buildButton("-", textColor: Colors.blue),
                 ],
               ),
               Row(
                 children: <Widget>[
                   buildButton("1"),
-                  buildButton("2"),
-                  buildButton("3"),
-                  buildButton("-", textColor: Colors.blue),
+                    buildButton("2"),
+                    buildButton("3"),
+                    buildButton("X", textColor: Colors.blue),
+                    buildButton("/", textColor: Colors.blue),
                 ],
               ),
               
               Row(
                 children: <Widget>[
-                  buildButton("."),
                   buildButton("0"),
-                  buildButton("00"),
-                  buildButton("+", textColor: Colors.blue),
-                ],
-              ),
-              Row(
-                children: <Widget>[
-                  buildButton("C", textColor: Colors.red),
-                  buildButton("AC", textColor: Colors.red),
-                  buildButton("=", textColor: Colors.green),
+                    buildButton("."),
+                    buildButton("00"),
+                    buildButton("="),
+                    const Expanded(
+                      child: Text(' ',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 24, color: Colors.white),
+                      ),
+                    ),
                 ],
               ),
             ],

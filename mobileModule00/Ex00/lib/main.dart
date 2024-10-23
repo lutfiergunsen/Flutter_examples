@@ -17,7 +17,7 @@ void main() {
             ),
             ElevatedButton(
               onPressed: () {
-                print('Button pressed');
+                debugPrint('Button pressed');
               },
               child: Text('Click me'),
             ),

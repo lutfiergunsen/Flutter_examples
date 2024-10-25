@@ -53,6 +53,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.1),
                   ),
+                  onSubmitted: (_) => _updateLocation(),
                 ),
               ),
               IconButton(

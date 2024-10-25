@@ -1,81 +1,43 @@
 import 'package:flutter/material.dart';
 
-/// Flutter code sample for [BottomNavigationBar].
+void main() {
+  runApp(MyApp());
+}
 
-void main() => runApp(const BottomNavigationBarExampleApp());
-
-class BottomNavigationBarExampleApp extends StatelessWidget {
-  const BottomNavigationBarExampleApp({super.key});
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: BottomNavigationBarExample(),
+    return MaterialApp(
+      home: TabBarExample(),
     );
   }
 }
 
-class BottomNavigationBarExample extends StatefulWidget {
-  const BottomNavigationBarExample({super.key});
-
-  @override
-  State<BottomNavigationBarExample> createState() =>
-      _BottomNavigationBarExampleState();
-}
-
-class _BottomNavigationBarExampleState
-    extends State<BottomNavigationBarExample> {
-  int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Currently',
-      style: optionStyle,
-    ),
-    Text(
-      'Today',
-      style: optionStyle,
-    ),
-    Text(
-      'Weekly',
-      style: optionStyle,
-    ),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
+class TabBarExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('BottomNavigationBar Sample'),
-      ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Currently',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Today',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: 'Weekly',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
+    return DefaultTabController(
+      length: 3, // Sekme sayısını belirtir
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(''),
+        ),
+        body: const TabBarView(
+          children: [
+            Center(child: Text("Currently")),
+            Center(child: Text("Today")),
+            Center(child: Text("Weekly")),
+          ],
+        ),
+        bottomNavigationBar: const TabBar(
+          tabs: [
+            Tab(icon: Icon(Icons.calendar_today), text: "Currently"),
+            Tab(icon: Icon(Icons.calendar_view_day), text: "Today"),
+            Tab(icon: Icon(Icons.calendar_view_week), text: "Weekly"),
+          ],
+          labelColor: Colors.blue,
+          unselectedLabelColor: Colors.grey,
+        ),
       ),
     );
   }

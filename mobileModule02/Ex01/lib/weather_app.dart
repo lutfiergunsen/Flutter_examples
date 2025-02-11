@@ -64,7 +64,7 @@ class TabBarExamplesState extends State<TabBarExample> {
     try {
       final response = await http.get(
         Uri.parse('https://nominatim.openstreetmap.org/search?format=json&q=$query'),
-        headers: {'User-Agent': 'YourAppName/1.0'}, // Kendi uygulama adınızı ekleyin
+        headers: {'User-Agent': 'YourAppName/1.0'},
       );
 
       if (response.statusCode == 200) {

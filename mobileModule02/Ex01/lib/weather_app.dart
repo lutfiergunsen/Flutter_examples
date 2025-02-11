@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -26,12 +29,70 @@ class TabBarExample extends StatefulWidget {
 class TabBarExamplesState extends State<TabBarExample> {
   final TextEditingController _controller = TextEditingController();
   String location = "Konum alınamadı";
+  List<Map<String, dynamic>> _searchResults = [];
+  bool _isSearching = false;
+
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _controller.addListener(_onSearchChanged);
   }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      if (_controller.text.isNotEmpty) {
+        _searchLocation(_controller.text);
+      } else {
+        setState(() => _searchResults = []);
+      }
+    });
+  }
+
+  Future<void> _searchLocation(String query) async {
+    setState(() => _isSearching = true);
+    try {
+      final response = await http.get(
+        Uri.parse('https://nominatim.openstreetmap.org/search?format=json&q=$query'),
+        headers: {'User-Agent': 'YourAppName/1.0'}, // Kendi uygulama adınızı ekleyin
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _searchResults = data
+              .map((item) => {
+                    'name': item['display_name'],
+                    'lat': item['lat'],
+                    'lon': item['lon'],
+                  })
+              .toList();
+        });
+      }
+    } catch (e) {
+      print('Arama hatası: $e');
+    } finally {
+      setState(() => _isSearching = false);
+    }
+  }
+
+  void _onLocationSelected(Map<String, dynamic> selectedLocation) {
+      setState(() {
+        location = "Lat: ${selectedLocation['lat']}, Lng: ${selectedLocation['lon']}";
+        _controller.text = selectedLocation['name'];
+        _searchResults = [];
+      });
+    }
 
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
@@ -84,33 +145,43 @@ class TabBarExamplesState extends State<TabBarExample> {
         appBar: AppBar(
           title: Row(
             children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
+              Expanded(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        hintText: 'Şehir ara...',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[200],
                       ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
                     ),
-                    onSubmitted: (_) => _getCurrentLocation(),
-                  ),
+                    if (_isSearching)
+                      const LinearProgressIndicator(
+                        color: Colors.blue,
+                        minHeight: 2,
+                      ),
+                  ],
                 ),
-                IconButton(
-                  icon: const Icon(Icons.location_searching_sharp),
-                  onPressed: _getCurrentLocation,
-                ),
-              ],
+              ),
+              IconButton(
+                icon: const Icon(Icons.location_searching_sharp),
+                onPressed: _getCurrentLocation,
+              ),
+            ],
           ),
           backgroundColor: Colors.blue,
         ),
-        body: TabBarView(
+        body: Stack(
           children: [
-            Column(
+            TabBarView(
+              children: [
+                Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text("Currently"),
@@ -131,6 +202,28 @@ class TabBarExamplesState extends State<TabBarExample> {
                 Text(location),
               ],
             ),
+              ],
+            ),
+            if (_searchResults.isNotEmpty)
+              Positioned(
+                top: 60,
+                left: 20,
+                right: 20,
+                child: Material(
+                  elevation: 4,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) {
+                      final result = _searchResults[index];
+                      return ListTile(
+                        title: Text(result['name']),
+                        onTap: () => _onLocationSelected(result),
+                      );
+                    },
+                  ),
+                ),
+              ),
           ],
         ),
         bottomNavigationBar: const BottomAppBar(

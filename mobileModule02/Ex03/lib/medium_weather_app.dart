@@ -70,7 +70,7 @@ class TabBarExamplesState extends State<TabBarExample> {
   Future<void> _searchLocation(String query) async {
     setState(() {
       _isSearching = true;
-      _errorMessage = null; // Yeni aramada hata mesajını temizle
+      _errorMessage = null;
     });
 
     try {
@@ -120,7 +120,7 @@ class TabBarExamplesState extends State<TabBarExample> {
           _currentWeatherData = json.decode(response.body)['current_weather'];
           _hourlyWeatherData = json.decode(response.body)['hourly'];
           _dailyWeatherData = json.decode(response.body)['daily'];
-          _errorMessage = null; // Başarılı istekte hata mesajını temizle
+          _errorMessage = null;
         });
       }
     } on TimeoutException {
@@ -152,10 +152,8 @@ class TabBarExamplesState extends State<TabBarExample> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Konum servisinin etkin olup olmadığını kontrol edin
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Konum servisi devre dışı ise kullanıcıya bildirin
       setState(() {
         location = "Konum servisi devre dışı.";
       });
@@ -416,7 +414,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                   ),
                 ),
               ),
-            if (_errorMessage != null) // Hata mesajı gösterimi
+            if (_errorMessage != null)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),

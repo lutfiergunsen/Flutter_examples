@@ -134,10 +134,8 @@ class TabBarExamplesState extends State<TabBarExample> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Konum servisinin etkin olup olmadığını kontrol edin
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Konum servisi devre dışı ise kullanıcıya bildirin
       setState(() {
         location = "Konum servisi devre dışı.";
       });
@@ -305,7 +303,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                     if (_hourlyWeatherData != null)
                       Expanded(
                         child: ListView.builder(
-                          itemCount: 24, // Sadece 24 saatlik veri göster
+                          itemCount: 24,
                           itemBuilder: (context, index) {
                             final time = _hourlyWeatherData!['time'][index];
                             final temperature = _hourlyWeatherData!['temperature_2m'][index];

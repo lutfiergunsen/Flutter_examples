@@ -37,17 +37,14 @@ class TabBarExamplesState extends State<TabBarExample> {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Konum servisinin etkin olup olmadığını kontrol edin
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Konum servisi devre dışı ise kullanıcıya bildirin
       setState(() {
         location = "Konum servisi devre dışı.";
       });
       return;
     }
 
-    // Konum izinlerini kontrol edin
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -66,7 +63,6 @@ class TabBarExamplesState extends State<TabBarExample> {
       return;
     }
 
-    // Konum bilgilerini alın
     Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );

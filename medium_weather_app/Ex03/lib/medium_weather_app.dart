@@ -28,7 +28,7 @@ class TabBarExample extends StatefulWidget {
 
 class TabBarExamplesState extends State<TabBarExample> {
   final TextEditingController _controller = TextEditingController();
-  String location = "Konum alınamadı";
+  String location = "";
   List<Map<String, dynamic>> _searchResults = [];
   bool _isSearching = false;
   String? _errorMessage;
@@ -41,6 +41,7 @@ class TabBarExamplesState extends State<TabBarExample> {
   String _cityName = "";
   String _region = "";
   String _country = "";
+  bool _locationPermissionDenied = false;
 
   @override
   void initState() {
@@ -68,6 +69,11 @@ class TabBarExamplesState extends State<TabBarExample> {
   }
 
   Future<void> _searchLocation(String query) async {
+    if (_locationPermissionDenied) {
+      setState(() => _errorMessage = "Location permission denied. Please allow in settings.");
+      return;
+    }
+
     setState(() {
       _isSearching = true;
       _errorMessage = null;
@@ -149,44 +155,40 @@ class TabBarExamplesState extends State<TabBarExample> {
   }
 
   Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      setState(() {
-        location = "Konum servisi devre dışı.";
-      });
-      return;
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        setState(() {
-          location = "Konum izni reddedildi.";
-        });
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      setState(() {
-        location =
-            "Geolocation is not available, please enable it in your App settings";
-      });
-      return;
-    }
-
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
+  if (_locationPermissionDenied) {
     setState(() {
-      location = "Lat: ${position.latitude}, Lng: ${position.longitude}";
+      _errorMessage = "";
     });
+    return;
   }
+
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    setState(() {
+      _errorMessage = "";
+    });
+    return;
+  }
+
+  LocationPermission permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      setState(() {
+        _errorMessage = "";
+      });
+      return;
+    }
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    setState(() {
+      _locationPermissionDenied = true; 
+      _errorMessage = "The service connection is lost, please check your internet connection or try again later";
+    });
+    return;
+  }
+}
 
   String _getWeatherDescription(int weatherCode) {
     switch (weatherCode) {
@@ -251,7 +253,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                     TextField(
                       controller: _controller,
                       decoration: InputDecoration(
-                        hintText: 'Şehir ara...',
+                        hintText: 'Search city...',
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -321,7 +323,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                     if (_hourlyWeatherData != null)
                       Expanded(
                         child: ListView.builder(
-                          itemCount: 24, // Sadece 24 saatlik veri göster
+                          itemCount: 24,
                           itemBuilder: (context, index) {
                             final time = _hourlyWeatherData!['time'][index];
                             final temperature =
@@ -414,12 +416,12 @@ class TabBarExamplesState extends State<TabBarExample> {
                   ),
                 ),
               ),
-            if (_errorMessage != null)
+            if (_errorMessage != null || location.isNotEmpty)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Text(
-                    _errorMessage!,
+                    location.isNotEmpty ? location : _errorMessage ?? "",
                     style: const TextStyle(color: Colors.red, fontSize: 16),
                     textAlign: TextAlign.center,
                   ),

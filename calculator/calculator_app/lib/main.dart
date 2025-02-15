@@ -114,7 +114,7 @@ class CalculatorState extends State<Calculator> {
           ),
           const Spacer(),
           Container(
-            color: Color.fromARGB(255, 74, 0, 177),
+            color: const Color.fromARGB(255, 74, 0, 177),
             child: Column(
               children: <Widget>[
                 Row(

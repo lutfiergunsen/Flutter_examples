@@ -316,7 +316,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                             Text(
                               _cityName,
                               style: const TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
+                                  fontSize: 24),
                             ),
                             Text(
                               '$_region, $_country',
@@ -330,17 +330,17 @@ class TabBarExamplesState extends State<TabBarExample> {
                             Text(
                               'Sıcaklık: ${_currentWeatherData!['temperature']}°C',
                               style: const TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold),
+                                  fontSize: 24, color: Colors.black),
                             ),
                             Text(
                               'Hava Durumu: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
                               style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 18, color: Colors.black),
                             ),
                             Text(
                               'Rüzgar Hızı: ${_currentWeatherData!['windspeed']} km/sa',
                               style: const TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 18, color: Colors.black),
                             ),
                           ],
                         ),
@@ -357,12 +357,12 @@ class TabBarExamplesState extends State<TabBarExample> {
                               Text(
                                 _cityName,
                                 style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                    fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
                               ),
                               Text(
                                 '$_region, $_country',
                                 style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
+                                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                               ),
                             ],
                           ),
@@ -384,11 +384,14 @@ class TabBarExamplesState extends State<TabBarExample> {
                                 subtitle: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(DateTime.parse(time).toString()),
-                                    Text('Sıcaklık: $temperature°C'),
-                                    Text(
-                                        'Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
-                                    Text('Rüzgar Hızı: $windSpeed km/sa'),
+                                    Text(DateTime.parse(time).toString(),
+                                        style: const TextStyle(color: Colors.black)),
+                                    Text('Sıcaklık: $temperature°C',
+                                        style: const TextStyle(color: Colors.black)),
+                                    Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}',
+                                        style: const TextStyle(color: Colors.black)),
+                                    Text('Rüzgar Hızı: $windSpeed km/sa',
+                                        style: const TextStyle(color: Colors.black)),
                                   ],
                                 ),
                               );
@@ -438,11 +441,13 @@ class TabBarExamplesState extends State<TabBarExample> {
                                 subtitle: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(date),
-                                    Text('Max Sıcaklık: $maxTemp°C'),
-                                    Text('Min Sıcaklık: $minTemp°C'),
-                                    Text(
-                                        'Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
+                                    Text(date, style: const TextStyle(color: Colors.black)),
+                                    Text('Max Sıcaklık: $maxTemp°C',
+                                        style: const TextStyle(color: Colors.black)),
+                                    Text('Min Sıcaklık: $minTemp°C',
+                                        style: const TextStyle(color: Colors.black)),
+                                    Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}',
+                                        style: const TextStyle(color: Colors.black)),
                                   ],
                                 ),
                               );
@@ -464,8 +469,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                   elevation: 4,
                   child: Container(
                     constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height *
-                          0.5, // Maksimum yükseklik
+                      maxHeight: MediaQuery.of(context).size.height * 0.5, // Maksimum yükseklik
                     ),
                     child: SingleChildScrollView(
                       child: Column(

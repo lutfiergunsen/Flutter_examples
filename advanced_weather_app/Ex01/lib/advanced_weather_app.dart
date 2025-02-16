@@ -10,7 +10,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -81,13 +81,11 @@ class TabBarExamplesState extends State<TabBarExample> {
     });
 
     try {
-      final response = await http
-          .get(
-            Uri.parse(
-                'https://nominatim.openstreetmap.org/search?format=json&q=$query'),
-            headers: {'User-Agent': 'YourAppName/1.0'},
-          )
-          .timeout(const Duration(seconds: 10));
+      final response = await http.get(
+        Uri.parse(
+            'https://nominatim.openstreetmap.org/search?format=json&q=$query'),
+        headers: {'User-Agent': 'YourAppName/1.0'},
+      ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
@@ -359,14 +357,12 @@ class TabBarExamplesState extends State<TabBarExample> {
                               Text(
                                 _cityName,
                                 style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 '$_region, $_country',
                                 style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -413,14 +409,12 @@ class TabBarExamplesState extends State<TabBarExample> {
                               Text(
                                 _cityName,
                                 style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 24, fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 '$_region, $_country',
                                 style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                             ],
                           ),
@@ -463,25 +457,33 @@ class TabBarExamplesState extends State<TabBarExample> {
             // Arama sonuçları
             if (_searchResults.isNotEmpty)
               Positioned(
-                top: 0,
+                top: 0, // AppBar altında başlaması için
                 left: 20,
                 right: 20,
                 child: Material(
                   elevation: 4,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _searchResults.length > 5 ? 5 : _searchResults.length,
-                    itemBuilder: (context, index) {
-                      final result = _searchResults[index];
-                      return ListTile(
-                        title: Text(result['name']),
-                        onTap: () {
-                          _onLocationSelected(result);
-                          _searchResults.clear();
-                          _controller.text = "";
-                        },
-                      );
-                    },
+                  child: Container(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height *
+                          0.5, // Maksimum yükseklik
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (int i = 0; i < (_searchResults.length > 5 ? 5 : _searchResults.length); i++)
+                            ListTile(
+                              dense: true, // Yoğun mod ile boşlukları azalt
+                              title: Text(_searchResults[i]['name']),
+                              onTap: () {
+                                _onLocationSelected(_searchResults[i]);
+                                _searchResults = [];
+                                _controller.text = "";
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

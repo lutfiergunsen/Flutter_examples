@@ -10,7 +10,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
@@ -70,7 +70,8 @@ class TabBarExamplesState extends State<TabBarExample> {
 
   Future<void> _searchLocation(String query) async {
     if (_locationPermissionDenied) {
-      setState(() => _errorMessage = "Location permission denied. Please allow in settings.");
+      setState(() => _errorMessage =
+          "Location permission denied. Please allow in settings.");
       return;
     }
 
@@ -80,15 +81,19 @@ class TabBarExamplesState extends State<TabBarExample> {
     });
 
     try {
-      final response = await http.get(
-        Uri.parse('https://nominatim.openstreetmap.org/search?format=json&q=$query'),
-        headers: {'User-Agent': 'YourAppName/1.0'},
-      ).timeout(const Duration(seconds: 10));
+      final response = await http
+          .get(
+            Uri.parse(
+                'https://nominatim.openstreetmap.org/search?format=json&q=$query'),
+            headers: {'User-Agent': 'YourAppName/1.0'},
+          )
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         if (data.isEmpty) {
-          setState(() => _errorMessage = "Belirtilen adres veya koordinatlar için sonuç bulunamadı");
+          setState(() => _errorMessage =
+              "Belirtilen adres veya koordinatlar için sonuç bulunamadı");
         } else {
           setState(() => _searchResults = data
               .map((item) => {
@@ -181,8 +186,9 @@ class TabBarExamplesState extends State<TabBarExample> {
 
     if (permission == LocationPermission.deniedForever) {
       setState(() {
-        _locationPermissionDenied = true; 
-        _errorMessage = "Servis bağlantısı kesildi, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin";
+        _locationPermissionDenied = true;
+        _errorMessage =
+            "Servis bağlantısı kesildi, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin";
       });
       return;
     }
@@ -242,7 +248,12 @@ class TabBarExamplesState extends State<TabBarExample> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        extendBody: true,
+        backgroundColor: Colors.transparent,
+        // AppBar
         appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
           title: Row(
             children: [
               Expanded(
@@ -258,7 +269,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
-                        fillColor: Colors.grey[200],
+                        fillColor: Colors.white70,
                       ),
                     ),
                     if (_isSearching)
@@ -276,157 +287,189 @@ class TabBarExamplesState extends State<TabBarExample> {
               ),
             ],
           ),
-          backgroundColor: Colors.blue,
         ),
+        // Asıl içerik
         body: Stack(
           children: [
-            Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("weather_app.jpg"),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(Colors.black26, BlendMode.darken),
+            // Arka plan resmi
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/weather_app.jpg"),
+                    fit: BoxFit.cover,
+                    colorFilter:
+                        ColorFilter.mode(Colors.black26, BlendMode.darken),
+                  ),
                 ),
               ),
             ),
-            TabBarView(
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (_cityName.isNotEmpty)
-                      Column(
-                        children: [
-                          Text(
-                            _cityName,
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            '$_region, $_country',
-                            style: const TextStyle(fontSize: 18),
-                          ),
-                        ],
-                      ),
-                    if (_currentWeatherData != null)
-                      Column(
-                        children: [
-                          Text(
-                            'Sıcaklık: ${_currentWeatherData!['temperature']}°C',
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            'Hava Durumu: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            'Rüzgar Hızı: ${_currentWeatherData!['windspeed']} km/sa',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    if (_cityName.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
+            // SafeArea: İçerik bottomNavigationBar'ın altına taşmasın diye
+            SafeArea(
+              child: TabBarView(
+                children: [
+                  // Currently tab
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_cityName.isNotEmpty)
+                        Column(
                           children: [
                             Text(
                               _cityName,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               '$_region, $_country',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: const TextStyle(fontSize: 18),
                             ),
                           ],
                         ),
-                      ),
-                    if (_hourlyWeatherData != null)
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: 24,
-                          itemBuilder: (context, index) {
-                            final time = _hourlyWeatherData!['time'][index];
-                            final temperature = _hourlyWeatherData!['temperature_2m'][index];
-                            final weatherCode = _hourlyWeatherData!['weathercode'][index];
-                            final windSpeed = _hourlyWeatherData!['windspeed_10m'][index];
-
-                            return ListTile(
-                              title: Text(DateTime.parse(time).toString()),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Sıcaklık: $temperature°C'),
-                                  Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
-                                  Text('Rüzgar Hızı: $windSpeed km/sa'),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-                // Weekly tab
-                Column(
-                  children: [
-                    if (_cityName.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
+                      if (_currentWeatherData != null)
+                        Column(
                           children: [
                             Text(
-                              _cityName,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              'Sıcaklık: ${_currentWeatherData!['temperature']}°C',
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              '$_region, $_country',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              'Hava Durumu: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Rüzgar Hızı: ${_currentWeatherData!['windspeed']} km/sa',
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
-                      ),
-                    if (_dailyWeatherData != null)
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _dailyWeatherData!['time'].length,
-                          itemBuilder: (context, index) {
-                            final date = _dailyWeatherData!['time'][index];
-                            final maxTemp = _dailyWeatherData!['temperature_2m_max'][index];
-                            final minTemp = _dailyWeatherData!['temperature_2m_min'][index];
-                            final weatherCode = _dailyWeatherData!['weathercode'][index];
-
-                            return ListTile(
-                              title: Text(date),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Max Sıcaklık: $maxTemp°C'),
-                                  Text('Min Sıcaklık: $minTemp°C'),
-                                  Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
-                                ],
+                    ],
+                  ),
+                  // Today tab
+                  Column(
+                    children: [
+                      if (_cityName.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                _cityName,
+                                style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold),
                               ),
-                            );
-                          },
+                              Text(
+                                '$_region, $_country',
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
-                ),
-              ],
+                      if (_hourlyWeatherData != null)
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: 24,
+                            itemBuilder: (context, index) {
+                              final time = _hourlyWeatherData!['time'][index];
+                              final temperature =
+                                  _hourlyWeatherData!['temperature_2m'][index];
+                              final weatherCode =
+                                  _hourlyWeatherData!['weathercode'][index];
+                              final windSpeed =
+                                  _hourlyWeatherData!['windspeed_10m'][index];
+
+                              return ListTile(
+                                subtitle: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(DateTime.parse(time).toString()),
+                                    Text('Sıcaklık: $temperature°C'),
+                                    Text(
+                                        'Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
+                                    Text('Rüzgar Hızı: $windSpeed km/sa'),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                  // Weekly tab
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_cityName.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                _cityName,
+                                style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '$_region, $_country',
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (_dailyWeatherData != null)
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: _dailyWeatherData!['time'].length,
+                            itemBuilder: (context, index) {
+                              final date = _dailyWeatherData!['time'][index];
+                              final maxTemp =
+                                  _dailyWeatherData!['temperature_2m_max']
+                                      [index];
+                              final minTemp =
+                                  _dailyWeatherData!['temperature_2m_min']
+                                      [index];
+                              final weatherCode =
+                                  _dailyWeatherData!['weathercode'][index];
+
+                              return ListTile(
+                                subtitle: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(date),
+                                    Text('Max Sıcaklık: $maxTemp°C'),
+                                    Text('Min Sıcaklık: $minTemp°C'),
+                                    Text(
+                                        'Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
+            // Arama sonuçları
             if (_searchResults.isNotEmpty)
               Positioned(
-                top: 60,
+                top: 0,
                 left: 20,
                 right: 20,
                 child: Material(
                   elevation: 4,
                   child: ListView.builder(
                     shrinkWrap: true,
-                    // Maksimum 5 öneri gösteriliyor.
                     itemCount: _searchResults.length > 5 ? 5 : _searchResults.length,
                     itemBuilder: (context, index) {
                       final result = _searchResults[index];
@@ -442,6 +485,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                   ),
                 ),
               ),
+            // Hata mesajları
             if (_errorMessage != null || location.isNotEmpty)
               Center(
                 child: Padding(
@@ -455,7 +499,10 @@ class TabBarExamplesState extends State<TabBarExample> {
               ),
           ],
         ),
+        // Şeffaf bottomNavigationBar
         bottomNavigationBar: const BottomAppBar(
+          color: Colors.transparent,
+          elevation: 0,
           child: TabBar(
             tabs: [
               Tab(icon: Icon(Icons.calendar_today), text: "Currently"),

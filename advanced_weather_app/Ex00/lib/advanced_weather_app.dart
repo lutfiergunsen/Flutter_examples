@@ -410,14 +410,13 @@ class TabBarExamplesState extends State<TabBarExample> {
             ),
             if (_searchResults.isNotEmpty)
               Positioned(
-                top: 60,
+                top: 0,
                 left: 20,
                 right: 20,
                 child: Material(
                   elevation: 4,
                   child: ListView.builder(
                     shrinkWrap: true,
-                    // Maksimum 5 öneri gösteriliyor.
                     itemCount: _searchResults.length > 5 ? 5 : _searchResults.length,
                     itemBuilder: (context, index) {
                       final result = _searchResults[index];

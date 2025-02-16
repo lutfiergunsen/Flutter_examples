@@ -28,7 +28,7 @@ class TabBarExample extends StatefulWidget {
 
 class TabBarExamplesState extends State<TabBarExample> {
   final TextEditingController _controller = TextEditingController();
-  String location = "Konum alınamadı";
+  String location = "location not found";
   List<Map<String, dynamic>> _searchResults = [];
   bool _isSearching = false;
 
@@ -88,7 +88,7 @@ class TabBarExamplesState extends State<TabBarExample> {
         });
       }
     } catch (e) {
-      print('Arama hatası: $e');
+      print('search error: $e');
     } finally {
       setState(() => _isSearching = false);
     }
@@ -110,7 +110,7 @@ class TabBarExamplesState extends State<TabBarExample> {
         });
       }
     } catch (e) {
-      print('Hava durumu verisi alınamadı: $e');
+      print('Weather data not available: $e');
     }
   }
 
@@ -137,7 +137,7 @@ class TabBarExamplesState extends State<TabBarExample> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       setState(() {
-        location = "Konum servisi devre dışı.";
+        location = "Location service is disabled.";
       });
       return;
     }
@@ -147,7 +147,7 @@ class TabBarExamplesState extends State<TabBarExample> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         setState(() {
-          location = "Konum izni reddedildi.";
+          location = "Location permission denied.";
         });
         return;
       }
@@ -173,49 +173,49 @@ class TabBarExamplesState extends State<TabBarExample> {
   String _getWeatherDescription(int weatherCode) {
     switch (weatherCode) {
       case 0:
-        return "Açık";
+        return "Clear";
       case 1:
-        return "Çoğunlukla açık";
+        return "Mostly clear";
       case 2:
-        return "Parçalı bulutlu";
+        return "Partly cloudy";
       case 3:
-        return "Bulutlu";
+        return "Cloudy";
       case 45:
       case 48:
-        return "Sisli";
+        return "Foggy";
       case 51:
       case 53:
       case 55:
-        return "Çiseleyen yağmur";
+        return "Drizzling rain";
       case 56:
       case 57:
-        return "Donan çisenti";
+        return "Freezing drizzle";
       case 61:
       case 63:
       case 65:
-        return "Yağmurlu";
+        return "Rainy";
       case 66:
       case 67:
-        return "Donan yağmur";
+        return "Freezing rain";
       case 71:
       case 73:
       case 75:
-        return "Karlı";
+        return "Snowy";
       case 77:
-        return "Kar taneleri";
+        return "Snowflakes";
       case 80:
       case 81:
       case 82:
-        return "Sağanak yağış";
+        return "Showers";
       case 85:
       case 86:
-        return "Kar fırtınası";
+        return "Snowstorm";
       case 95:
       case 96:
       case 99:
-        return "Fırtınalı";
+        return "Stormy";
       default:
-        return "Bilinmeyen";
+        return "Unknown";
     }
   }
 
@@ -233,7 +233,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                     TextField(
                       controller: _controller,
                       decoration: InputDecoration(
-                        hintText: 'Şehir ara...',
+                        hintText: 'Search city...',
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -268,22 +268,22 @@ class TabBarExamplesState extends State<TabBarExample> {
                   children: [
                     if (_cityName.isNotEmpty)
                       Text(
-                        'Konum: $_cityName, $_region, $_country',
+                        'Location: $_cityName, $_region, $_country',
                         style: const TextStyle(fontSize: 18),
                       ),
                     if (_currentWeatherData != null)
                       Column(
                         children: [
                           Text(
-                            'Sıcaklık: ${_currentWeatherData!['temperature']}°C',
+                            'Tempature: ${_currentWeatherData!['temperature']}°C',
                             style: const TextStyle(fontSize: 24),
                           ),
                           Text(
-                            'Hava Durumu: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
+                            'Weather: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
                             style: const TextStyle(fontSize: 18),
                           ),
                           Text(
-                            'Rüzgar Hızı: ${_currentWeatherData!['windspeed']} km/sa',
+                            'Wind speed: ${_currentWeatherData!['windspeed']} km/sa',
                             style: const TextStyle(fontSize: 18),
                           ),
                         ],
@@ -296,7 +296,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
-                          'Konum: $_cityName, $_region, $_country',
+                          'Location: $_cityName, $_region, $_country',
                           style: const TextStyle(fontSize: 18),
                         ),
                       ),
@@ -306,18 +306,22 @@ class TabBarExamplesState extends State<TabBarExample> {
                           itemCount: 24,
                           itemBuilder: (context, index) {
                             final time = _hourlyWeatherData!['time'][index];
-                            final temperature = _hourlyWeatherData!['temperature_2m'][index];
-                            final weatherCode = _hourlyWeatherData!['weathercode'][index];
-                            final windSpeed = _hourlyWeatherData!['windspeed_10m'][index];
+                            final temperature =
+                                _hourlyWeatherData!['temperature_2m'][index];
+                            final weatherCode =
+                                _hourlyWeatherData!['weathercode'][index];
+                            final windSpeed =
+                                _hourlyWeatherData!['windspeed_10m'][index];
 
                             return ListTile(
                               title: Text(DateTime.parse(time).toString()),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Sıcaklık: $temperature°C'),
-                                  Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
-                                  Text('Rüzgar Hızı: $windSpeed km/sa'),
+                                  Text('Tempature: $temperature°C'),
+                                  Text(
+                                      'Weather: ${_getWeatherDescription(weatherCode)}'),
+                                  Text('Wind speed: $windSpeed km/sa'),
                                 ],
                               ),
                             );
@@ -332,7 +336,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
-                          'Konum: $_cityName, $_region, $_country',
+                          'Location: $_cityName, $_region, $_country',
                           style: const TextStyle(fontSize: 18),
                         ),
                       ),
@@ -342,18 +346,22 @@ class TabBarExamplesState extends State<TabBarExample> {
                           itemCount: _dailyWeatherData!['time'].length,
                           itemBuilder: (context, index) {
                             final date = _dailyWeatherData!['time'][index];
-                            final maxTemp = _dailyWeatherData!['temperature_2m_max'][index];
-                            final minTemp = _dailyWeatherData!['temperature_2m_min'][index];
-                            final weatherCode = _dailyWeatherData!['weathercode'][index];
+                            final maxTemp =
+                                _dailyWeatherData!['temperature_2m_max'][index];
+                            final minTemp =
+                                _dailyWeatherData!['temperature_2m_min'][index];
+                            final weatherCode =
+                                _dailyWeatherData!['weathercode'][index];
 
                             return ListTile(
                               title: Text(date),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Max Sıcaklık: $maxTemp°C'),
-                                  Text('Min Sıcaklık: $minTemp°C'),
-                                  Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
+                                  Text('Max Tempature: $maxTemp°C'),
+                                  Text('Min Tempature: $minTemp°C'),
+                                  Text(
+                                      'Weather: ${_getWeatherDescription(weatherCode)}'),
                                 ],
                               ),
                             );

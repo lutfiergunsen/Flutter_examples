@@ -28,7 +28,7 @@ class TabBarExample extends StatefulWidget {
 
 class TabBarExamplesState extends State<TabBarExample> {
   final TextEditingController _controller = TextEditingController();
-  String location = "Konum alınamadı";
+  String location = "location not found";
   List<Map<String, dynamic>> _searchResults = [];
   bool _isSearching = false;
 
@@ -63,7 +63,8 @@ class TabBarExamplesState extends State<TabBarExample> {
     setState(() => _isSearching = true);
     try {
       final response = await http.get(
-        Uri.parse('https://nominatim.openstreetmap.org/search?format=json&q=$query'),
+        Uri.parse(
+            'https://nominatim.openstreetmap.org/search?format=json&q=$query'),
         headers: {'User-Agent': 'YourAppName/1.0'},
       );
 
@@ -80,19 +81,20 @@ class TabBarExamplesState extends State<TabBarExample> {
         });
       }
     } catch (e) {
-      print('Arama hatası: $e');
+      print('search error: $e');
     } finally {
       setState(() => _isSearching = false);
     }
   }
 
   void _onLocationSelected(Map<String, dynamic> selectedLocation) {
-      setState(() {
-        location = "Lat: ${selectedLocation['lat']}, Lng: ${selectedLocation['lon']}";
-        _controller.text = selectedLocation['name'];
-        _searchResults = [];
-      });
-    }
+    setState(() {
+      location =
+          "Lat: ${selectedLocation['lat']}, Lng: ${selectedLocation['lon']}";
+      _controller.text = selectedLocation['name'];
+      _searchResults = [];
+    });
+  }
 
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
@@ -101,7 +103,7 @@ class TabBarExamplesState extends State<TabBarExample> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       setState(() {
-        location = "Konum servisi devre dışı.";
+        location = "Location service is disabled.";
       });
       return;
     }
@@ -111,7 +113,7 @@ class TabBarExamplesState extends State<TabBarExample> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         setState(() {
-          location = "Konum izni reddedildi.";
+          location = "Location permission denied.";
         });
         return;
       }
@@ -119,7 +121,8 @@ class TabBarExamplesState extends State<TabBarExample> {
 
     if (permission == LocationPermission.deniedForever) {
       setState(() {
-        location = "Geolocation is not available, please enable it in your App settings";
+        location =
+            "Geolocation is not available, please enable it in your App settings";
       });
       return;
     }
@@ -147,7 +150,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                     TextField(
                       controller: _controller,
                       decoration: InputDecoration(
-                        hintText: 'Şehir ara...',
+                        hintText: 'Search city...',
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -178,26 +181,26 @@ class TabBarExamplesState extends State<TabBarExample> {
             TabBarView(
               children: [
                 Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Currently"),
-                Text(location),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Today"),
-                Text(location),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Weekly"),
-                Text(location),
-              ],
-            ),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Currently"),
+                    Text(location),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Today"),
+                    Text(location),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Weekly"),
+                    Text(location),
+                  ],
+                ),
               ],
             ),
             if (_searchResults.isNotEmpty)

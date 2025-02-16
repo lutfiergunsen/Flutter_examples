@@ -25,7 +25,7 @@ class TabBarExample extends StatefulWidget {
 
 class TabBarExamplesState extends State<TabBarExample> {
   final TextEditingController _controller = TextEditingController();
-  String location = "Konum alınamadı";
+  String location = "location not found";
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class TabBarExamplesState extends State<TabBarExample> {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       setState(() {
-        location = "Konum servisi devre dışı.";
+        location = "Location service is disabled.";
       });
       return;
     }
@@ -50,7 +50,7 @@ class TabBarExamplesState extends State<TabBarExample> {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
         setState(() {
-          location = "Konum izni reddedildi.";
+          location = "Location permission denied.";
         });
         return;
       }
@@ -58,7 +58,8 @@ class TabBarExamplesState extends State<TabBarExample> {
 
     if (permission == LocationPermission.deniedForever) {
       setState(() {
-        location = "Geolocation is not available, please enable it in your App settings";
+        location =
+            "Geolocation is not available, please enable it in your App settings";
       });
       return;
     }
@@ -80,27 +81,27 @@ class TabBarExamplesState extends State<TabBarExample> {
         appBar: AppBar(
           title: Row(
             children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    hintText: 'Search city...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
                     ),
-                    onSubmitted: (_) => _getCurrentLocation(),
+                    filled: true,
+                    fillColor: Colors.grey[200],
                   ),
+                  onSubmitted: (_) => _getCurrentLocation(),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.location_searching_sharp),
-                  onPressed: _getCurrentLocation,
-                ),
-              ],
+              ),
+              IconButton(
+                icon: const Icon(Icons.location_searching_sharp),
+                onPressed: _getCurrentLocation,
+              ),
+            ],
           ),
           backgroundColor: Colors.blue,
         ),

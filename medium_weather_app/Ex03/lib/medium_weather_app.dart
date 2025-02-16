@@ -70,7 +70,8 @@ class TabBarExamplesState extends State<TabBarExample> {
 
   Future<void> _searchLocation(String query) async {
     if (_locationPermissionDenied) {
-      setState(() => _errorMessage = "Location permission denied. Please allow in settings.");
+      setState(() => _errorMessage =
+          "Location permission denied. Please allow in settings.");
       return;
     }
 
@@ -155,87 +156,88 @@ class TabBarExamplesState extends State<TabBarExample> {
   }
 
   Future<void> _getCurrentLocation() async {
-  if (_locationPermissionDenied) {
-    setState(() {
-      _errorMessage = "";
-    });
-    return;
-  }
-
-  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  if (!serviceEnabled) {
-    setState(() {
-      _errorMessage = "";
-    });
-    return;
-  }
-
-  LocationPermission permission = await Geolocator.checkPermission();
-  if (permission == LocationPermission.denied) {
-    permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
+    if (_locationPermissionDenied) {
       setState(() {
         _errorMessage = "";
       });
       return;
     }
-  }
 
-  if (permission == LocationPermission.deniedForever) {
-    setState(() {
-      _locationPermissionDenied = true; 
-      _errorMessage = "The service connection is lost, please check your internet connection or try again later";
-    });
-    return;
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() {
+        _errorMessage = "";
+      });
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() {
+          _errorMessage = "";
+        });
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() {
+        _locationPermissionDenied = true;
+        _errorMessage =
+            "The service connection is lost, please check your internet connection or try again later";
+      });
+      return;
+    }
   }
-}
 
   String _getWeatherDescription(int weatherCode) {
     switch (weatherCode) {
       case 0:
-        return "Açık";
+        return "Clear";
       case 1:
-        return "Çoğunlukla açık";
+        return "Mostly clear";
       case 2:
-        return "Parçalı bulutlu";
+        return "Partly cloudy";
       case 3:
-        return "Bulutlu";
+        return "Cloudy";
       case 45:
       case 48:
-        return "Sisli";
+        return "Foggy";
       case 51:
       case 53:
       case 55:
-        return "Çiseleyen yağmur";
+        return "Drizzling rain";
       case 56:
       case 57:
-        return "Donan çisenti";
+        return "Freezing drizzle";
       case 61:
       case 63:
       case 65:
-        return "Yağmurlu";
+        return "Rainy";
       case 66:
       case 67:
-        return "Donan yağmur";
+        return "Freezing rain";
       case 71:
       case 73:
       case 75:
-        return "Karlı";
+        return "Snowy";
       case 77:
-        return "Kar taneleri";
+        return "Snowflakes";
       case 80:
       case 81:
       case 82:
-        return "Sağanak yağış";
+        return "Showers";
       case 85:
       case 86:
-        return "Kar fırtınası";
+        return "Snowstorm";
       case 95:
       case 96:
       case 99:
-        return "Fırtınalı";
+        return "Stormy";
       default:
-        return "Bilinmeyen";
+        return "Unknown";
     }
   }
 
@@ -272,6 +274,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                 ),
               ),
               IconButton(
+                tooltip: 'Search',
                 icon: const Icon(Icons.location_searching_sharp),
                 onPressed: _getCurrentLocation,
               ),
@@ -288,22 +291,22 @@ class TabBarExamplesState extends State<TabBarExample> {
                   children: [
                     if (_cityName.isNotEmpty)
                       Text(
-                        'Konum: $_cityName, $_region, $_country',
+                        'Location: $_cityName, $_region, $_country',
                         style: const TextStyle(fontSize: 18),
                       ),
                     if (_currentWeatherData != null)
                       Column(
                         children: [
                           Text(
-                            'Sıcaklık: ${_currentWeatherData!['temperature']}°C',
+                            'Temperature: ${_currentWeatherData!['temperature']}°C',
                             style: const TextStyle(fontSize: 24),
                           ),
                           Text(
-                            'Hava Durumu: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
+                            'Weather ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
                             style: const TextStyle(fontSize: 18),
                           ),
                           Text(
-                            'Rüzgar Hızı: ${_currentWeatherData!['windspeed']} km/sa',
+                            'Wind speed: ${_currentWeatherData!['windspeed']} km/sa',
                             style: const TextStyle(fontSize: 18),
                           ),
                         ],
@@ -316,7 +319,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
-                          'Konum: $_cityName, $_region, $_country',
+                          'Location: $_cityName, $_region, $_country',
                           style: const TextStyle(fontSize: 18),
                         ),
                       ),
@@ -338,10 +341,10 @@ class TabBarExamplesState extends State<TabBarExample> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Sıcaklık: $temperature°C'),
+                                  Text('Tempature: $temperature°C'),
                                   Text(
-                                      'Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
-                                  Text('Rüzgar Hızı: $windSpeed km/sa'),
+                                      'Weather: ${_getWeatherDescription(weatherCode)}'),
+                                  Text('Wind speed: $windSpeed km/sa'),
                                 ],
                               ),
                             );
@@ -356,7 +359,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Text(
-                          'Konum: $_cityName, $_region, $_country',
+                          'Location: $_cityName, $_region, $_country',
                           style: const TextStyle(fontSize: 18),
                         ),
                       ),
@@ -378,10 +381,10 @@ class TabBarExamplesState extends State<TabBarExample> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Max Sıcaklık: $maxTemp°C'),
-                                  Text('Min Sıcaklık: $minTemp°C'),
+                                  Text('Max Tempature: $maxTemp°C'),
+                                  Text('Min Tempature: $minTemp°C'),
                                   Text(
-                                      'Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
+                                      'Weather: ${_getWeatherDescription(weatherCode)}'),
                                 ],
                               ),
                             );

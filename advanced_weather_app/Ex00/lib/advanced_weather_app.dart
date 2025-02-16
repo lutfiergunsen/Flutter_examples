@@ -70,7 +70,8 @@ class TabBarExamplesState extends State<TabBarExample> {
 
   Future<void> _searchLocation(String query) async {
     if (_locationPermissionDenied) {
-      setState(() => _errorMessage = "Location permission denied. Please allow in settings.");
+      setState(() => _errorMessage =
+          "Location permission denied. Please allow in settings.");
       return;
     }
 
@@ -81,14 +82,16 @@ class TabBarExamplesState extends State<TabBarExample> {
 
     try {
       final response = await http.get(
-        Uri.parse('https://nominatim.openstreetmap.org/search?format=json&q=$query'),
+        Uri.parse(
+            'https://nominatim.openstreetmap.org/search?format=json&q=$query'),
         headers: {'User-Agent': 'YourAppName/1.0'},
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         if (data.isEmpty) {
-          setState(() => _errorMessage = "Belirtilen adres veya koordinatlar için sonuç bulunamadı");
+          setState(() => _errorMessage =
+              "Could not find any result for the supplied address or coordinates");
         } else {
           setState(() => _searchResults = data
               .map((item) => {
@@ -101,10 +104,10 @@ class TabBarExamplesState extends State<TabBarExample> {
       }
     } on TimeoutException {
       setState(() => _errorMessage =
-          "Bağlantı zaman aşımına uğradı, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin");
+          "The service connection is lost, please check your internet connection or try again later");
     } catch (e) {
       setState(() => _errorMessage =
-          "Servis bağlantısı kesildi, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin");
+          "The service connection is lost, please check your internet connection or try again later");
     } finally {
       setState(() => _isSearching = false);
     }
@@ -129,10 +132,10 @@ class TabBarExamplesState extends State<TabBarExample> {
       }
     } on TimeoutException {
       setState(() => _errorMessage =
-          "Bağlantı zaman aşımına uğradı, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin");
+          "The service connection is lost, please check your internet connection or try again later");
     } catch (e) {
       setState(() => _errorMessage =
-          "Servis bağlantısı kesildi, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin");
+          "The service connection is lost, please check your internet connection or try again later");
     }
   }
 
@@ -181,8 +184,9 @@ class TabBarExamplesState extends State<TabBarExample> {
 
     if (permission == LocationPermission.deniedForever) {
       setState(() {
-        _locationPermissionDenied = true; 
-        _errorMessage = "Servis bağlantısı kesildi, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin";
+        _locationPermissionDenied = true;
+        _errorMessage =
+            "The service connection is lost, please check your internet connection or try again later";
       });
       return;
     }
@@ -191,49 +195,49 @@ class TabBarExamplesState extends State<TabBarExample> {
   String _getWeatherDescription(int weatherCode) {
     switch (weatherCode) {
       case 0:
-        return "Açık";
+        return "Clear";
       case 1:
-        return "Çoğunlukla açık";
+        return "Mostly clear";
       case 2:
-        return "Parçalı bulutlu";
+        return "Partly cloudy";
       case 3:
-        return "Bulutlu";
+        return "Cloudy";
       case 45:
       case 48:
-        return "Sisli";
+        return "Foggy";
       case 51:
       case 53:
       case 55:
-        return "Çiseleyen yağmur";
+        return "Drizzling rain";
       case 56:
       case 57:
-        return "Donan çisenti";
+        return "Freezing drizzle";
       case 61:
       case 63:
       case 65:
-        return "Yağmurlu";
+        return "Rainy";
       case 66:
       case 67:
-        return "Donan yağmur";
+        return "Freezing rain";
       case 71:
       case 73:
       case 75:
-        return "Karlı";
+        return "Snowy";
       case 77:
-        return "Kar taneleri";
+        return "Snowflakes";
       case 80:
       case 81:
       case 82:
-        return "Sağanak yağış";
+        return "Showers";
       case 85:
       case 86:
-        return "Kar fırtınası";
+        return "Snowstorm";
       case 95:
       case 96:
       case 99:
-        return "Fırtınalı";
+        return "Stormy";
       default:
-        return "Bilinmeyen";
+        return "Unknown";
     }
   }
 
@@ -251,7 +255,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                     TextField(
                       controller: _controller,
                       decoration: InputDecoration(
-                        hintText: 'Şehir ara...',
+                        hintText: 'Search city...',
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -270,7 +274,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                 ),
               ),
               IconButton(
-                tooltip: 'Konumumu Bul',
+                tooltip: 'Search',
                 icon: const Icon(Icons.location_searching_sharp, size: 28),
                 onPressed: _getCurrentLocation,
               ),
@@ -290,7 +294,8 @@ class TabBarExamplesState extends State<TabBarExample> {
                         children: [
                           Text(
                             _cityName,
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           Text(
                             '$_region, $_country',
@@ -302,16 +307,19 @@ class TabBarExamplesState extends State<TabBarExample> {
                       Column(
                         children: [
                           Text(
-                            'Sıcaklık: ${_currentWeatherData!['temperature']}°C',
-                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            'Tempature: ${_currentWeatherData!['temperature']}°C',
+                            style: const TextStyle(
+                                fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'Hava Durumu: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            'Weather: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            'Rüzgar Hızı: ${_currentWeatherData!['windspeed']} km/sa',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            'Wind Speed: ${_currentWeatherData!['windspeed']} km/sa',
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -326,11 +334,13 @@ class TabBarExamplesState extends State<TabBarExample> {
                           children: [
                             Text(
                               _cityName,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               '$_region, $_country',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -341,18 +351,22 @@ class TabBarExamplesState extends State<TabBarExample> {
                           itemCount: 24,
                           itemBuilder: (context, index) {
                             final time = _hourlyWeatherData!['time'][index];
-                            final temperature = _hourlyWeatherData!['temperature_2m'][index];
-                            final weatherCode = _hourlyWeatherData!['weathercode'][index];
-                            final windSpeed = _hourlyWeatherData!['windspeed_10m'][index];
+                            final temperature =
+                                _hourlyWeatherData!['temperature_2m'][index];
+                            final weatherCode =
+                                _hourlyWeatherData!['weathercode'][index];
+                            final windSpeed =
+                                _hourlyWeatherData!['windspeed_10m'][index];
 
                             return ListTile(
                               title: Text(DateTime.parse(time).toString()),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Sıcaklık: $temperature°C'),
-                                  Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
-                                  Text('Rüzgar Hızı: $windSpeed km/sa'),
+                                  Text('Tempature: $temperature°C'),
+                                  Text(
+                                      'Weather: ${_getWeatherDescription(weatherCode)}'),
+                                  Text('Wind Speed: $windSpeed km/sa'),
                                 ],
                               ),
                             );
@@ -371,11 +385,13 @@ class TabBarExamplesState extends State<TabBarExample> {
                           children: [
                             Text(
                               _cityName,
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 24, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               '$_region, $_country',
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -386,18 +402,22 @@ class TabBarExamplesState extends State<TabBarExample> {
                           itemCount: _dailyWeatherData!['time'].length,
                           itemBuilder: (context, index) {
                             final date = _dailyWeatherData!['time'][index];
-                            final maxTemp = _dailyWeatherData!['temperature_2m_max'][index];
-                            final minTemp = _dailyWeatherData!['temperature_2m_min'][index];
-                            final weatherCode = _dailyWeatherData!['weathercode'][index];
+                            final maxTemp =
+                                _dailyWeatherData!['temperature_2m_max'][index];
+                            final minTemp =
+                                _dailyWeatherData!['temperature_2m_min'][index];
+                            final weatherCode =
+                                _dailyWeatherData!['weathercode'][index];
 
                             return ListTile(
                               title: Text(date),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Max Sıcaklık: $maxTemp°C'),
-                                  Text('Min Sıcaklık: $minTemp°C'),
-                                  Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}'),
+                                  Text('Max Tempature: $maxTemp°C'),
+                                  Text('Min Tempature: $minTemp°C'),
+                                  Text(
+                                      'Weather: ${_getWeatherDescription(weatherCode)}'),
                                 ],
                               ),
                             );
@@ -417,7 +437,8 @@ class TabBarExamplesState extends State<TabBarExample> {
                   elevation: 4,
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: _searchResults.length > 5 ? 5 : _searchResults.length,
+                    itemCount:
+                        _searchResults.length > 5 ? 5 : _searchResults.length,
                     itemBuilder: (context, index) {
                       final result = _searchResults[index];
                       return ListTile(

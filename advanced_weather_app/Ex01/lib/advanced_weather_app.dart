@@ -91,7 +91,7 @@ class TabBarExamplesState extends State<TabBarExample> {
         final List<dynamic> data = json.decode(response.body);
         if (data.isEmpty) {
           setState(() => _errorMessage =
-              "Belirtilen adres veya koordinatlar için sonuç bulunamadı");
+              "Could not find any result for the supplied address or coordinates");
         } else {
           setState(() => _searchResults = data
               .map((item) => {
@@ -104,10 +104,10 @@ class TabBarExamplesState extends State<TabBarExample> {
       }
     } on TimeoutException {
       setState(() => _errorMessage =
-          "Bağlantı zaman aşımına uğradı, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin");
+          "The service connection is lost, please check your internet connection or try again later");
     } catch (e) {
       setState(() => _errorMessage =
-          "Servis bağlantısı kesildi, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin");
+          "The service connection is lost, please check your internet connection or try again later");
     } finally {
       setState(() => _isSearching = false);
     }
@@ -132,10 +132,10 @@ class TabBarExamplesState extends State<TabBarExample> {
       }
     } on TimeoutException {
       setState(() => _errorMessage =
-          "Bağlantı zaman aşımına uğradı, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin");
+          "The service connection is lost, please check your internet connection or try again later");
     } catch (e) {
       setState(() => _errorMessage =
-          "Servis bağlantısı kesildi, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin");
+          "The service connection is lost, please check your internet connection or try again later");
     }
   }
 
@@ -186,7 +186,7 @@ class TabBarExamplesState extends State<TabBarExample> {
       setState(() {
         _locationPermissionDenied = true;
         _errorMessage =
-            "Servis bağlantısı kesildi, lütfen internet bağlantınızı kontrol edin veya daha sonra tekrar deneyin";
+            "The service connection is lost, please check your internet connection or try again later";
       });
       return;
     }
@@ -195,49 +195,49 @@ class TabBarExamplesState extends State<TabBarExample> {
   String _getWeatherDescription(int weatherCode) {
     switch (weatherCode) {
       case 0:
-        return "Açık";
+        return "Clear";
       case 1:
-        return "Çoğunlukla açık";
+        return "Mostly clear";
       case 2:
-        return "Parçalı bulutlu";
+        return "Partly cloudy";
       case 3:
-        return "Bulutlu";
+        return "Cloudy";
       case 45:
       case 48:
-        return "Sisli";
+        return "Foggy";
       case 51:
       case 53:
       case 55:
-        return "Çiseleyen yağmur";
+        return "Drizzling rain";
       case 56:
       case 57:
-        return "Donan çisenti";
+        return "Freezing drizzle";
       case 61:
       case 63:
       case 65:
-        return "Yağmurlu";
+        return "Rainy";
       case 66:
       case 67:
-        return "Donan yağmur";
+        return "Freezing rain";
       case 71:
       case 73:
       case 75:
-        return "Karlı";
+        return "Snowy";
       case 77:
-        return "Kar taneleri";
+        return "Snowflakes";
       case 80:
       case 81:
       case 82:
-        return "Sağanak yağış";
+        return "Showers";
       case 85:
       case 86:
-        return "Kar fırtınası";
+        return "Snowstorm";
       case 95:
       case 96:
       case 99:
-        return "Fırtınalı";
+        return "Stormy";
       default:
-        return "Bilinmeyen";
+        return "Unknown";
     }
   }
 
@@ -260,7 +260,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                     TextField(
                       controller: _controller,
                       decoration: InputDecoration(
-                        hintText: 'Şehir ara...',
+                        hintText: 'Search city...',
                         prefixIcon: const Icon(Icons.search),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -279,7 +279,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                 ),
               ),
               IconButton(
-                tooltip: 'Konumumu Bul',
+                tooltip: 'Search',
                 icon: const Icon(Icons.location_searching_sharp, size: 28),
                 onPressed: _getCurrentLocation,
               ),
@@ -315,8 +315,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                           children: [
                             Text(
                               _cityName,
-                              style: const TextStyle(
-                                  fontSize: 24),
+                              style: const TextStyle(fontSize: 24),
                             ),
                             Text(
                               '$_region, $_country',
@@ -328,17 +327,17 @@ class TabBarExamplesState extends State<TabBarExample> {
                         Column(
                           children: [
                             Text(
-                              'Sıcaklık: ${_currentWeatherData!['temperature']}°C',
+                              'Temperature: ${_currentWeatherData!['temperature']}°C',
                               style: const TextStyle(
                                   fontSize: 24, color: Colors.black),
                             ),
                             Text(
-                              'Hava Durumu: ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
+                              'Weather ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black),
                             ),
                             Text(
-                              'Rüzgar Hızı: ${_currentWeatherData!['windspeed']} km/sa',
+                              'Wind speed: ${_currentWeatherData!['windspeed']} km/sa',
                               style: const TextStyle(
                                   fontSize: 18, color: Colors.black),
                             ),
@@ -357,12 +356,16 @@ class TabBarExamplesState extends State<TabBarExample> {
                               Text(
                                 _cityName,
                                 style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
                               ),
                               Text(
                                 '$_region, $_country',
                                 style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
                               ),
                             ],
                           ),
@@ -385,13 +388,18 @@ class TabBarExamplesState extends State<TabBarExample> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(DateTime.parse(time).toString(),
-                                        style: const TextStyle(color: Colors.black)),
-                                    Text('Sıcaklık: $temperature°C',
-                                        style: const TextStyle(color: Colors.black)),
-                                    Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}',
-                                        style: const TextStyle(color: Colors.black)),
-                                    Text('Rüzgar Hızı: $windSpeed km/sa',
-                                        style: const TextStyle(color: Colors.black)),
+                                        style: const TextStyle(
+                                            color: Colors.black)),
+                                    Text('Tempature: $temperature°C',
+                                        style: const TextStyle(
+                                            color: Colors.black)),
+                                    Text(
+                                        'Hava Durumu: ${_getWeatherDescription(weatherCode)}',
+                                        style: const TextStyle(
+                                            color: Colors.black)),
+                                    Text('Wind speed: $windSpeed km/sa',
+                                        style: const TextStyle(
+                                            color: Colors.black)),
                                   ],
                                 ),
                               );
@@ -441,13 +449,19 @@ class TabBarExamplesState extends State<TabBarExample> {
                                 subtitle: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(date, style: const TextStyle(color: Colors.black)),
-                                    Text('Max Sıcaklık: $maxTemp°C',
-                                        style: const TextStyle(color: Colors.black)),
-                                    Text('Min Sıcaklık: $minTemp°C',
-                                        style: const TextStyle(color: Colors.black)),
-                                    Text('Hava Durumu: ${_getWeatherDescription(weatherCode)}',
-                                        style: const TextStyle(color: Colors.black)),
+                                    Text(date,
+                                        style: const TextStyle(
+                                            color: Colors.black)),
+                                    Text('Max Temperature: $maxTemp°C',
+                                        style: const TextStyle(
+                                            color: Colors.black)),
+                                    Text('Min Temperature: $minTemp°C',
+                                        style: const TextStyle(
+                                            color: Colors.black)),
+                                    Text(
+                                        'Hava Durumu: ${_getWeatherDescription(weatherCode)}',
+                                        style: const TextStyle(
+                                            color: Colors.black)),
                                   ],
                                 ),
                               );
@@ -462,22 +476,27 @@ class TabBarExamplesState extends State<TabBarExample> {
             // Arama sonuçları
             if (_searchResults.isNotEmpty)
               Positioned(
-                top: 0, // AppBar altında başlaması için
+                top: 0,
                 left: 20,
                 right: 20,
                 child: Material(
                   elevation: 4,
                   child: Container(
                     constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.5, // Maksimum yükseklik
+                      maxHeight: MediaQuery.of(context).size.height * 0.5,
                     ),
                     child: SingleChildScrollView(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          for (int i = 0; i < (_searchResults.length > 5 ? 5 : _searchResults.length); i++)
+                          for (int i = 0;
+                              i <
+                                  (_searchResults.length > 5
+                                      ? 5
+                                      : _searchResults.length);
+                              i++)
                             ListTile(
-                              dense: true, // Yoğun mod ile boşlukları azalt
+                              dense: true,
                               title: Text(_searchResults[i]['name']),
                               onTap: () {
                                 _onLocationSelected(_searchResults[i]);

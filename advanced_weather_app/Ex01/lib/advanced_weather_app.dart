@@ -250,7 +250,7 @@ class TabBarExamplesState extends State<TabBarExample> {
         backgroundColor: Colors.transparent,
         // AppBar
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: const Color.fromARGB(255, 0, 255, 0),
           elevation: 0,
           title: Row(
             children: [
@@ -267,12 +267,12 @@ class TabBarExamplesState extends State<TabBarExample> {
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
-                        fillColor: Colors.white70,
+                        fillColor: Colors.white,
                       ),
                     ),
                     if (_isSearching)
                       const LinearProgressIndicator(
-                        color: Colors.blue,
+                        color: Colors.black,
                         minHeight: 2,
                       ),
                   ],
@@ -315,11 +315,11 @@ class TabBarExamplesState extends State<TabBarExample> {
                           children: [
                             Text(
                               _cityName,
-                              style: const TextStyle(fontSize: 24),
+                              style: const TextStyle(fontSize: 24, color: Colors.white),
                             ),
                             Text(
                               '$_region, $_country',
-                              style: const TextStyle(fontSize: 18),
+                              style: const TextStyle(fontSize: 18, color: Colors.white),
                             ),
                           ],
                         ),
@@ -329,17 +329,17 @@ class TabBarExamplesState extends State<TabBarExample> {
                             Text(
                               'Temperature: ${_currentWeatherData!['temperature']}°C',
                               style: const TextStyle(
-                                  fontSize: 24, color: Colors.black),
+                                  fontSize: 24, color: Colors.white),
                             ),
                             Text(
                               'Weather ${_getWeatherDescription(_currentWeatherData!['weathercode'])}',
                               style: const TextStyle(
-                                  fontSize: 18, color: Colors.black),
+                                  fontSize: 18, color: Colors.white),
                             ),
                             Text(
                               'Wind speed: ${_currentWeatherData!['windspeed']} km/sa',
                               style: const TextStyle(
-                                  fontSize: 18, color: Colors.black),
+                                  fontSize: 18, color: Colors.white),
                             ),
                           ],
                         ),
@@ -358,14 +358,14 @@ class TabBarExamplesState extends State<TabBarExample> {
                                 style: const TextStyle(
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black),
+                                    color: Colors.white),
                               ),
                               Text(
                                 '$_region, $_country',
                                 style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black),
+                                    color: Colors.white),
                               ),
                             ],
                           ),
@@ -389,17 +389,17 @@ class TabBarExamplesState extends State<TabBarExample> {
                                   children: [
                                     Text(DateTime.parse(time).toString(),
                                         style: const TextStyle(
-                                            color: Colors.black)),
+                                            color: Colors.white)),
                                     Text('Tempature: $temperature°C',
                                         style: const TextStyle(
-                                            color: Colors.black)),
+                                            color: Colors.white)),
                                     Text(
                                         'Hava Durumu: ${_getWeatherDescription(weatherCode)}',
                                         style: const TextStyle(
-                                            color: Colors.black)),
+                                            color: Colors.white)),
                                     Text('Wind speed: $windSpeed km/sa',
                                         style: const TextStyle(
-                                            color: Colors.black)),
+                                            color: Colors.white)),
                                   ],
                                 ),
                               );
@@ -420,12 +420,12 @@ class TabBarExamplesState extends State<TabBarExample> {
                               Text(
                                 _cityName,
                                 style: const TextStyle(
-                                    fontSize: 24, fontWeight: FontWeight.bold),
+                                    fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                               Text(
                                 '$_region, $_country',
                                 style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
+                                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                             ],
                           ),
@@ -451,17 +451,17 @@ class TabBarExamplesState extends State<TabBarExample> {
                                   children: [
                                     Text(date,
                                         style: const TextStyle(
-                                            color: Colors.black)),
+                                            color: Colors.white)),
                                     Text('Max Temperature: $maxTemp°C',
                                         style: const TextStyle(
-                                            color: Colors.black)),
+                                            color: Colors.white)),
                                     Text('Min Temperature: $minTemp°C',
                                         style: const TextStyle(
-                                            color: Colors.black)),
+                                            color: Colors.white)),
                                     Text(
                                         'Hava Durumu: ${_getWeatherDescription(weatherCode)}',
                                         style: const TextStyle(
-                                            color: Colors.black)),
+                                            color: Colors.white)),
                                   ],
                                 ),
                               );
@@ -534,9 +534,9 @@ class TabBarExamplesState extends State<TabBarExample> {
               Tab(icon: Icon(Icons.calendar_view_day), text: "Today"),
               Tab(icon: Icon(Icons.calendar_view_week), text: "Weekly"),
             ],
-            labelColor: Colors.blue,
-            unselectedLabelColor: Colors.black,
-            indicatorColor: Colors.blue,
+            labelColor: Color.fromARGB(255, 0, 255, 0),
+            unselectedLabelColor: Colors.white,
+            indicatorColor: Color.fromARGB(255, 0, 255, 0),
           ),
         ),
       ),

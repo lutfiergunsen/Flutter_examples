@@ -16,7 +16,7 @@ Hata Yönetimi: İnternet bağlantısı kaybı veya konum izni reddi durumunda k
 
 Şık Tasarım: Arka plan resmi ve şeffaf bileşenlerle modern bir arayüz.
 
--
+-----------------------------------------------------------------------------------
 
 🛠️ Teknoloji Yığını
 

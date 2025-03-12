@@ -5,6 +5,7 @@ Bu Flutter uygulaması, kullanıcıların gerçek zamanlı ve gelecekteki hava d
 -----------------------------------------------------------------------------------
 
 📌 Özellikler
+
 Şu Anki Hava Durumu: Anlık sıcaklık, rüzgar hızı ve hava durumu bilgileri.
 
 Saatlik ve Haftalık Tahminler: 24 saatlik detaylı tahminler ve 7 günlük hava durumu özeti.
@@ -18,6 +19,7 @@ Hata Yönetimi: İnternet bağlantısı kaybı veya konum izni reddi durumunda k
 -----------------------------------------------------------------------------------
 
 🛠️ Teknoloji Yığını
+
 Paketler: geolocator, http, Flutter SDK.
 
 API'lar:
@@ -29,6 +31,7 @@ Nominatim (OpenStreetMap): Konum arama.
 -----------------------------------------------------------------------------------
 
 🌟 Yenilikler
+
 Arka Plan Resmi: Hava durumu bilgileri, arka planda bir resimle birlikte sunulur.
 
 Şeffaf Bileşenler: BottomNavigationBar ve AppBar şeffaf tasarımıyla modern bir görünüm sunar.

@@ -51,7 +51,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
+                    fillColor: Colors.white,
                   ),
                   onSubmitted: (_) => _updateLocation(),
                 ),

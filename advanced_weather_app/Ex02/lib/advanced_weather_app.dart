@@ -291,7 +291,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
       child: Scaffold(
         extendBody: true,
         backgroundColor: Colors.transparent,
-        // AppBar
         appBar: AppBar(
           backgroundColor: const Color.fromARGB(255, 0, 255, 0),
           elevation: 0,
@@ -329,10 +328,8 @@ Icon _getWeatherIcon(int weatherCode, double size) {
             ],
           ),
         ),
-        // Asıl içerik
         body: Stack(
           children: [
-            // Arka plan resmi
             Positioned.fill(
               child: Container(
                 decoration: const BoxDecoration(
@@ -345,11 +342,9 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                 ),
               ),
             ),
-            // SafeArea: İçerik bottomNavigationBar'ın altına taşmasın diye
             SafeArea(
               child: TabBarView(
                 children: [
-                  // Currently tab
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -362,7 +357,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                           ),
                           child: Column(
                             children: [
-                              // Konum Bilgisi
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -391,11 +385,9 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                                 ],
                               ),
                               const SizedBox(height: 30),
-                              // Ana Hava Durumu Bilgileri
                               if (_currentWeatherData != null)
                                 Column(
                                   children: [
-                                    // Sıcaklık ve Simge
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -415,8 +407,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                                       ],
                                     ),
                                     const SizedBox(height: 20),
-
-                                    // Hava Durumu Açıklaması
                                     Text(
                                       _getWeatherDescription(
                                           _currentWeatherData!['weathercode']),
@@ -427,8 +417,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                                       ),
                                     ),
                                     const SizedBox(height: 30),
-
-                                    // Rüzgar Bilgisi
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 20, vertical: 12),
@@ -459,7 +447,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                         ),
                     ],
                   ),
-                  // Today tab
                   Column(
                     children: [
                       if (_cityName.isNotEmpty)
@@ -522,7 +509,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                         ),
                     ],
                   ),
-                  // Weekly tab
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -591,7 +577,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                 ],
               ),
             ),
-            // Arama sonuçları
             if (_searchResults.isNotEmpty)
               Positioned(
                 top: 0,
@@ -628,7 +613,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
                   ),
                 ),
               ),
-            // Hata mesajları
             if (_errorMessage != null || location.isNotEmpty)
               Center(
                 child: Padding(
@@ -642,7 +626,6 @@ Icon _getWeatherIcon(int weatherCode, double size) {
               ),
           ],
         ),
-        // Şeffaf bottomNavigationBar
         bottomNavigationBar: const BottomAppBar(
           color: Colors.transparent,
           elevation: 0,

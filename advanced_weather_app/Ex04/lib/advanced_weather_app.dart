@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:intl/intl.dart';
 
 void main() {
   runApp(const MyApp());
@@ -44,6 +43,12 @@ class TabBarExamplesState extends State<TabBarExample> {
   String _region = "";
   String _country = "";
   bool _locationPermissionDenied = false;
+  
+  // Bugünün verilerini tutmak için yeni değişkenler
+  List<dynamic>? _todayHourlyTimes;
+  List<dynamic>? _todayHourlyTemperatures;
+  List<dynamic>? _todayHourlyWeatherCodes;
+  List<dynamic>? _todayHourlyWindSpeeds;
 
   @override
   void initState() {
@@ -125,11 +130,16 @@ class TabBarExamplesState extends State<TabBarExample> {
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        
         setState(() {
-          _currentWeatherData = json.decode(response.body)['current_weather'];
-          _hourlyWeatherData = json.decode(response.body)['hourly'];
-          _dailyWeatherData = json.decode(response.body)['daily'];
+          _currentWeatherData = data['current_weather'];
+          _hourlyWeatherData = data['hourly'];
+          _dailyWeatherData = data['daily'];
           _errorMessage = null;
+          
+          // Bugünün verilerini filtrele
+          _extractTodayHourlyData();
         });
       }
     } on TimeoutException {
@@ -139,6 +149,39 @@ class TabBarExamplesState extends State<TabBarExample> {
       setState(() => _errorMessage =
           "The service connection is lost, please check your internet connection or try again later");
     }
+  }
+  
+  // Bugünün saatlik verilerini ayıklayan yeni metot
+  void _extractTodayHourlyData() {
+    if (_hourlyWeatherData == null) return;
+    
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+    
+    // Bugüne ait saat, sıcaklık, hava durumu kodu ve rüzgar hızı verilerini ayıkla
+    List<dynamic> times = [];
+    List<dynamic> temperatures = [];
+    List<dynamic> weatherCodes = [];
+    List<dynamic> windSpeeds = [];
+    
+    for (int i = 0; i < (_hourlyWeatherData!['time'] as List).length; i++) {
+      final timeStr = _hourlyWeatherData!['time'][i];
+      final time = DateTime.parse(timeStr);
+      
+      // Sadece bugünün verilerini al
+      if (time.isAfter(today) && time.isBefore(tomorrow)) {
+        times.add(timeStr);
+        temperatures.add(_hourlyWeatherData!['temperature_2m'][i]);
+        weatherCodes.add(_hourlyWeatherData!['weathercode'][i]);
+        windSpeeds.add(_hourlyWeatherData!['windspeed_10m'][i]);
+      }
+    }
+    
+    _todayHourlyTimes = times;
+    _todayHourlyTemperatures = temperatures;
+    _todayHourlyWeatherCodes = weatherCodes;
+    _todayHourlyWindSpeeds = windSpeeds;
   }
 
   void _onLocationSelected(Map<String, dynamic> location) async {
@@ -450,7 +493,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                         ),
                     ],
                   ),
-                  // Today tab
+                  // Today tab - Bugüne ait veriler için güncellenmiş kod
                   Column(
                     children: [
                       if (_cityName.isNotEmpty)
@@ -475,10 +518,9 @@ class TabBarExamplesState extends State<TabBarExample> {
                             ],
                           ),
                         ),
-                      if (_hourlyWeatherData != null &&
-                          _hourlyWeatherData!['temperature_2m'] != null)
+                      if (_todayHourlyTemperatures != null && _todayHourlyTemperatures!.isNotEmpty)
                         Container(
-                          height: 200,
+                          height: 300,
                           padding: const EdgeInsets.all(16.0),
                           child: LineChart(
                             LineChartData(
@@ -488,12 +530,17 @@ class TabBarExamplesState extends State<TabBarExample> {
                                   sideTitles: SideTitles(
                                     showTitles: true,
                                     getTitlesWidget: (value, meta) {
-                                      final hour = value.toInt();
-                                      return Text(
-                                        '$hour:00',
-                                        style: const TextStyle(
-                                            color: Colors.white, fontSize: 10),
-                                      );
+                                      if (value.toInt() >= 0 && 
+                                          value.toInt() < _todayHourlyTimes!.length) {
+                                        final timeStr = _todayHourlyTimes![value.toInt()];
+                                        final hour = DateTime.parse(timeStr).hour;
+                                        return Text(
+                                          '$hour:00',
+                                          style: const TextStyle(
+                                              color: Colors.white, fontSize: 10),
+                                        );
+                                      }
+                                      return const Text('');
                                     },
                                   ),
                                 ),
@@ -513,15 +560,13 @@ class TabBarExamplesState extends State<TabBarExample> {
                               ),
                               borderData: FlBorderData(show: true),
                               minX: 0,
-                              maxX: 23,
+                              maxX: (_todayHourlyTemperatures!.length - 1).toDouble(),
                               minY: 0,
-                              maxY:
-                                  20, // Bu değeri verilere göre dinamik ayarlayabilirsiniz
+                              maxY: 20, // Verilere göre dinamik ayarlanabilir
                               lineBarsData: [
                                 LineChartBarData(
                                   spots: List<FlSpot>.from(
-                                    (_hourlyWeatherData!['temperature_2m']
-                                            as List)
+                                    _todayHourlyTemperatures!
                                         .asMap()
                                         .entries
                                         .map((entry) => FlSpot(
@@ -555,78 +600,76 @@ class TabBarExamplesState extends State<TabBarExample> {
                           ),
                         ),
                       Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: ListView.builder(
-                            itemCount: _hourlyWeatherData?['time'].length ?? 0,
-                            itemBuilder: (context, index) {
-                              final time = _hourlyWeatherData?['time'][index];
-                              final temperature =
-                                  _hourlyWeatherData?['temperature_2m'][index];
-                              final weatherCode =
-                                  _hourlyWeatherData?['weathercode'][index];
-                              final windSpeed =
-                                  _hourlyWeatherData?['windspeed_10m'][index];
+                        child: _todayHourlyTimes == null
+                            ? const Center(
+                                child: Text(
+                                  'No data available for today',
+                                  style: TextStyle(color: Colors.white, fontSize: 16),
+                                ),
+                              )
+                            : ListView.builder(
+                                itemCount: _todayHourlyTimes!.length,
+                                itemBuilder: (context, index) {
+                                  final time = _todayHourlyTimes![index];
+                                  final temperature = _todayHourlyTemperatures![index];
+                                  final weatherCode = _todayHourlyWeatherCodes![index];
+                                  final windSpeed = _todayHourlyWindSpeeds![index];
 
-                              return ListTile(
-                                title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      time != null
-                                          ? DateTime.parse(time)
-                                                  .hour
-                                                  .toString() +
-                                              ':00'
-                                          : 'N/A',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 16),
-                                    ),
-                                    Row(
+                                  return ListTile(
+                                    title: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        if (weatherCode != null)
-                                          _getWeatherIcon(weatherCode, 24),
-                                        const SizedBox(width: 8),
                                         Text(
-                                          weatherCode != null
-                                              ? '${_getWeatherDescription(weatherCode)}'
+                                          time != null
+                                              ? '${DateTime.parse(time).hour}:00'
                                               : 'N/A',
                                           style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16),
+                                              color: Colors.white, fontSize: 16),
+                                        ),
+                                        Row(
+                                          children: [
+                                            if (weatherCode != null)
+                                              _getWeatherIcon(weatherCode, 24),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              weatherCode != null
+                                                  ? '${_getWeatherDescription(weatherCode)}'
+                                                  : 'N/A',
+                                              style: const TextStyle(
+                                                  color: Colors.white, fontSize: 16),
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          temperature != null
+                                              ? (temperature is num)
+                                                  ? '$temperature°C'
+                                                  : '${double.tryParse(temperature.toString()) ?? 'N/A'}°C'
+                                              : 'N/A',
+                                          style: const TextStyle(
+                                              color: Colors.white, fontSize: 16),
+                                        ),
+                                        Text(
+                                          windSpeed != null
+                                              ? (windSpeed is num)
+                                                  ? '$windSpeed km/h'
+                                                  : '${double.tryParse(windSpeed.toString()) ?? 'N/A'} km/h'
+                                              : 'N/A',
+                                          style: const TextStyle(
+                                              color: Colors.white, fontSize: 16),
                                         ),
                                       ],
                                     ),
-                                    Text(
-                                      temperature != null
-                                          ? (temperature is num)
-                                              ? '$temperature°C'
-                                              : '${double.tryParse(temperature.toString()) ?? 'N/A'}°C'
-                                          : 'N/A',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 16),
-                                    ),
-                                    Text(
-                                      windSpeed != null
-                                          ? (windSpeed is num)
-                                              ? '$windSpeed km/h'
-                                              : '${double.tryParse(windSpeed.toString()) ?? 'N/A'} km/h'
-                                          : 'N/A',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),
-                  // Weekly Tab - Tam Düzeltilmiş Kod
+                  // Weekly tab
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (_cityName.isNotEmpty)
                         Padding(
@@ -636,184 +679,57 @@ class TabBarExamplesState extends State<TabBarExample> {
                               Text(
                                 _cityName,
                                 style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
                               ),
                               Text(
                                 '$_region, $_country',
                                 style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white70,
-                                ),
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
                               ),
                             ],
                           ),
                         ),
                       if (_dailyWeatherData != null)
                         Expanded(
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 200,
-                                padding: const EdgeInsets.all(16.0),
-                                child: LineChart(
-                                  LineChartData(
-                                    gridData: FlGridData(show: true),
-                                    titlesData: FlTitlesData(
-                                      bottomTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: true,
-                                          getTitlesWidget: (value, meta) {
-                                            final date = DateTime.parse(
-                                              _dailyWeatherData!['time']
-                                                  [value.toInt()],
-                                            );
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 8.0),
-                                              child: Text(
-                                                DateFormat('E').format(date),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          interval: 1,
-                                        ),
-                                      ),
-                                      leftTitles: AxisTitles(
-                                        sideTitles: SideTitles(
-                                          showTitles: true,
-                                          getTitlesWidget: (value, meta) =>
-                                              Text(
-                                            '${value.toInt()}°C',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          interval: 5,
-                                        ),
-                                      ),
-                                    ),
-                                    borderData: FlBorderData(show: true),
-                                    // Tür Hatası Düzeltilmiş Kısım
-                                    minY: minTempList.reduce(
-                                            (double a, double b) =>
-                                                a < b ? a : b) -
-                                        2, // ✅
-                                    maxY: maxTempList.reduce(
-                                            (double a, double b) =>
-                                                a > b ? a : b) +
-                                        2, // ✅
-                                    lineBarsData: [
-                                      LineChartBarData(
-                                        spots: List.generate(
-                                          _dailyWeatherData!['time'].length,
-                                          (index) => FlSpot(
-                                            index.toDouble(),
-                                            _dailyWeatherData![
-                                                    'temperature_2m_max'][index]
-                                                .toDouble(),
-                                          ),
-                                        ),
-                                        isCurved: true,
-                                        color: Colors.red,
-                                        barWidth: 3,
-                                        dotData: FlDotData(show: false),
-                                      ),
-                                      LineChartBarData(
-                                        spots: List.generate(
-                                          _dailyWeatherData!['time'].length,
-                                          (index) => FlSpot(
-                                            index.toDouble(),
-                                            _dailyWeatherData![
-                                                    'temperature_2m_min'][index]
-                                                .toDouble(),
-                                          ),
-                                        ),
-                                        isCurved: true,
-                                        color: Colors.blue,
-                                        barWidth: 3,
-                                        dotData: FlDotData(show: false),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: ListView.builder(
-                                  itemCount: _dailyWeatherData!['time'].length,
-                                  itemBuilder: (context, index) {
-                                    final date = DateTime.parse(
-                                        _dailyWeatherData!['time'][index]);
-                                    final maxTemp =
-                                        _dailyWeatherData!['temperature_2m_max']
-                                            [index];
-                                    final minTemp =
-                                        _dailyWeatherData!['temperature_2m_min']
-                                            [index];
-                                    final weatherCode =
-                                        _dailyWeatherData!['weathercode']
-                                            [index];
+                          child: ListView.builder(
+                            itemCount: _dailyWeatherData!['time'].length,
+                            itemBuilder: (context, index) {
+                              final date = _dailyWeatherData!['time'][index];
+                              final maxTemp =
+                                  _dailyWeatherData!['temperature_2m_max']
+                                      [index];
+                              final minTemp =
+                                  _dailyWeatherData!['temperature_2m_min']
+                                      [index];
+                              final weatherCode =
+                                  _dailyWeatherData!['weathercode'][index];
 
-                                    return Container(
-                                      margin: const EdgeInsets.symmetric(
-                                        vertical: 4,
-                                        horizontal: 16,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.3),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: ListTile(
-                                        leading:
-                                            _getWeatherIcon(weatherCode, 36),
-                                        title: Text(
-                                          DateFormat('EEEE').format(date),
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                        ),
-                                        subtitle: Text(
-                                          _getWeatherDescription(weatherCode),
-                                          style: const TextStyle(
-                                              color: Colors.white70),
-                                        ),
-                                        trailing: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              '${maxTemp.toStringAsFixed(1)}°C',
-                                              style: const TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            Text(
-                                              '${minTemp.toStringAsFixed(1)}°C',
-                                              style: const TextStyle(
-                                                color: Colors.blue,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
+                              return ListTile(
+                                subtitle: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(date,
+                                        style: const TextStyle(
+                                            color: Colors.white)),
+                                    Text('Max Temperature: $maxTemp°C',
+                                        style: const TextStyle(
+                                            color: Colors.white)),
+                                    Text('Min Temperature: $minTemp°C',
+                                        style: const TextStyle(
+                                            color: Colors.white)),
+                                    Text(
+                                        'Hava Durumu: ${_getWeatherDescription(weatherCode)}',
+                                        style: const TextStyle(
+                                            color: Colors.white)),
+                                  ],
                                 ),
-                              ),
-                            ],
+                              );
+                            },
                           ),
-                        ),
-                      if (_dailyWeatherData == null)
-                        const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
                         ),
                     ],
                   ),

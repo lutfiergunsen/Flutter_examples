@@ -76,12 +76,7 @@ class TabBarExamplesState extends State<TabBarExample> {
   }
 
   Future<void> _searchLocation(String query) async {
-    if (_locationPermissionDenied) {
-      setState(() => _errorMessage =
-          "Location permission denied. Please allow in settings.");
-      return;
-    }
-
+    // Searching a city must keep working even when location permission is denied.
     setState(() {
       _isSearching = true;
       _errorMessage = null;
@@ -89,9 +84,9 @@ class TabBarExamplesState extends State<TabBarExample> {
 
     try {
       final response = await http.get(
-        Uri.parse(
-            'https://nominatim.openstreetmap.org/search?format=json&q=$query'),
-        headers: {'User-Agent': 'YourAppName/1.0'},
+        Uri.https('nominatim.openstreetmap.org', '/search',
+            {'format': 'json', 'q': query, 'accept-language': 'en'}),
+        headers: {'User-Agent': 'FlutterExamplesWeatherApp/1.0'},
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -125,7 +120,7 @@ class TabBarExamplesState extends State<TabBarExample> {
       final response = await http
           .get(
             Uri.parse(
-                'https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current_weather=true&hourly=temperature_2m,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min'),
+                'https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current_weather=true&hourly=temperature_2m,weathercode,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto'),
           )
           .timeout(const Duration(seconds: 10));
 
@@ -153,12 +148,12 @@ class TabBarExamplesState extends State<TabBarExample> {
   
   // Bugünün saatlik verilerini ayıklayan yeni metot
   void _extractTodayHourlyData() {
-    if (_hourlyWeatherData == null) return;
-    
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final tomorrow = today.add(const Duration(days: 1));
-    
+    if (_hourlyWeatherData == null || _dailyWeatherData == null) return;
+
+    // With timezone=auto the first daily date is "today" in the city's own
+    // time zone; hourly times look like "2024-10-29T00:00".
+    final todayPrefix = _dailyWeatherData!['time'][0] as String;
+
     // Bugüne ait saat, sıcaklık, hava durumu kodu ve rüzgar hızı verilerini ayıkla
     List<dynamic> times = [];
     List<dynamic> temperatures = [];
@@ -166,11 +161,10 @@ class TabBarExamplesState extends State<TabBarExample> {
     List<dynamic> windSpeeds = [];
     
     for (int i = 0; i < (_hourlyWeatherData!['time'] as List).length; i++) {
-      final timeStr = _hourlyWeatherData!['time'][i];
-      final time = DateTime.parse(timeStr);
-      
-      // Sadece bugünün verilerini al
-      if (time.isAfter(today) && time.isBefore(tomorrow)) {
+      final String timeStr = _hourlyWeatherData!['time'][i];
+
+      // Sadece bugünün verilerini al (00:00 dahil)
+      if (timeStr.startsWith(todayPrefix)) {
         times.add(timeStr);
         temperatures.add(_hourlyWeatherData!['temperature_2m'][i]);
         weatherCodes.add(_hourlyWeatherData!['weathercode'][i]);
@@ -184,6 +178,16 @@ class TabBarExamplesState extends State<TabBarExample> {
     _todayHourlyWindSpeeds = windSpeeds;
   }
 
+  (double, double) get _todayTemperatureRange {
+    final temps = (_todayHourlyTemperatures ?? [])
+        .map((t) => t is num ? t.toDouble() : double.tryParse('$t') ?? 0.0)
+        .toList();
+    if (temps.isEmpty) return (0, 20);
+    final min = temps.reduce((a, b) => a < b ? a : b);
+    final max = temps.reduce((a, b) => a > b ? a : b);
+    return ((min - 2).floorToDouble(), (max + 2).ceilToDouble());
+  }
+
   void _onLocationSelected(Map<String, dynamic> location) async {
     final lat = double.parse(location['lat']);
     final lon = double.parse(location['lon']);
@@ -192,27 +196,26 @@ class TabBarExamplesState extends State<TabBarExample> {
     setState(() {
       _cityName = nameParts[0].trim();
       _region = nameParts.length > 1 ? nameParts[1].trim() : '';
-      _country = nameParts.length > 2 ? nameParts[2].trim() : '';
-      _controller.text = location['name'];
+      _country = nameParts.length > 2 ? nameParts.last.trim() : '';
       _searchResults = [];
     });
 
     await _fetchWeatherData(lat, lon);
   }
 
+  static const _geolocationError =
+      "Geolocation is not available, please enable it in your app settings";
+
   Future<void> _getCurrentLocation() async {
     if (_locationPermissionDenied) {
-      setState(() {
-        _errorMessage = "";
-      });
+      setState(() => _errorMessage = _geolocationError);
       return;
     }
 
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      setState(() {
-        _errorMessage = "";
-      });
+      setState(() => _errorMessage =
+          "Location services are disabled, please enable them or search for a city");
       return;
     }
 
@@ -220,9 +223,7 @@ class TabBarExamplesState extends State<TabBarExample> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        setState(() {
-          _errorMessage = "";
-        });
+        setState(() => _errorMessage = _geolocationError);
         return;
       }
     }
@@ -230,11 +231,52 @@ class TabBarExamplesState extends State<TabBarExample> {
     if (permission == LocationPermission.deniedForever) {
       setState(() {
         _locationPermissionDenied = true;
-        _errorMessage =
-            "The service connection is lost, please check your internet connection or try again later";
+        _errorMessage = _geolocationError;
       });
       return;
     }
+
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 15),
+      );
+      await _setPlaceFromCoordinates(position.latitude, position.longitude);
+      await _fetchWeatherData(position.latitude, position.longitude);
+    } catch (e) {
+      setState(() => _errorMessage =
+          "Could not get your location, please search for a city");
+    }
+  }
+
+  // Konumdan şehir/bölge/ülke adını bulur; başarısız olursa koordinatları gösterir.
+  Future<void> _setPlaceFromCoordinates(double lat, double lon) async {
+    String city = "Current location";
+    String region = '${lat.toStringAsFixed(2)}, ${lon.toStringAsFixed(2)}';
+    String country = "";
+    try {
+      final response = await http.get(
+        Uri.https('nominatim.openstreetmap.org', '/reverse', {
+          'format': 'json',
+          'lat': '$lat',
+          'lon': '$lon',
+          'zoom': '10',
+          'accept-language': 'en',
+        }),
+        headers: {'User-Agent': 'FlutterExamplesWeatherApp/1.0'},
+      ).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        final address = json.decode(response.body)['address'] ?? {};
+        city = address['city'] ?? address['town'] ?? address['village'] ?? city;
+        region = address['state'] ?? address['province'] ?? region;
+        country = address['country'] ?? country;
+      }
+    } catch (_) {}
+    setState(() {
+      _cityName = city;
+      _region = region;
+      _country = country;
+    });
   }
 
   String _getWeatherDescription(int weatherCode) {
@@ -561,8 +603,9 @@ class TabBarExamplesState extends State<TabBarExample> {
                               borderData: FlBorderData(show: true),
                               minX: 0,
                               maxX: (_todayHourlyTemperatures!.length - 1).toDouble(),
-                              minY: 0,
-                              maxY: 20, // Verilere göre dinamik ayarlanabilir
+                              // Eksi ve 20°C üstü değerler kesilmesin diye verilere göre ayarlanır
+                              minY: _todayTemperatureRange.$1,
+                              maxY: _todayTemperatureRange.$2,
                               lineBarsData: [
                                 LineChartBarData(
                                   spots: List<FlSpot>.from(
@@ -722,7 +765,7 @@ class TabBarExamplesState extends State<TabBarExample> {
                                         style: const TextStyle(
                                             color: Colors.white)),
                                     Text(
-                                        'Hava Durumu: ${_getWeatherDescription(weatherCode)}',
+                                        'Weather: ${_getWeatherDescription(weatherCode)}',
                                         style: const TextStyle(
                                             color: Colors.white)),
                                   ],

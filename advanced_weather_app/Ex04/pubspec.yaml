@@ -1,5 +1,5 @@
 name: flutter_application_1
-description: "A new Flutter project."
+description: "Weather app with current, today and weekly forecasts (Open-Meteo)."
 publish_to: 'none'
 version: 0.1.0
 
@@ -9,10 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  geolocator: ^10.0.0
-  http: ^0.13.5
-  fl_chart: ^0.66.2
-  intl: ^0.18.1
+  geolocator: ^13.0.1
+  http: ^1.2.2
+  fl_chart: ^0.69.0
 
 dev_dependencies:
   flutter_test:

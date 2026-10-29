@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:math_expressions/math_expressions.dart';
+
+import 'calculator_logic.dart';
 
 void main() => runApp(const MyApp());
 
@@ -23,46 +24,10 @@ class Calculator extends StatefulWidget {
 }
 
 class CalculatorState extends State<Calculator> {
-  String displayText = "0";
-  String res = "0";
+  final CalculatorLogic _logic = CalculatorLogic();
 
   void buttonPressed(String buttonText) {
-    debugPrint('Button pressed: $buttonText');
-
-    void letstart(String displayText) {
-      String replacedText = displayText.replaceAll("X", "*");
-      Parser p = Parser();
-      Expression exp =  p.parse(replacedText);
-
-      ContextModel cm = ContextModel();
-      double eval = exp.evaluate(EvaluationType.REAL, cm);
-      setState(() {  
-        res = eval.toString();
-      });
-      debugPrint('Sonuç: $eval');
-    }
-
-    setState(() {
-      if (displayText == "0" &&
-          buttonText != "AC" &&
-          buttonText != "C" &&
-          buttonText != "=") {
-        displayText = buttonText;
-      } else if (buttonText == "AC") {
-        displayText = "0";
-        res = "0";
-      } else if (buttonText == "C") {
-        displayText = displayText.substring(0, displayText.length - 1);
-        if (displayText == "") displayText = "0";
-      } else if (buttonText == "=") {
-        if (int.tryParse(displayText[displayText.length - 1]) != null)
-        {
-          letstart(displayText);
-        }
-      } else {
-          displayText += buttonText;
-      }
-    });
+    setState(() => _logic.press(buttonText));
   }
 
   Widget buildButton(String buttonText, {Color textColor = Colors.white}) {
@@ -96,18 +61,32 @@ class CalculatorState extends State<Calculator> {
           Row(
             children: <Widget>[
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Text(
-                      displayText,
-                      style: const TextStyle(fontSize: 40, color: Colors.white),
-                    ),
-                    Text(
-                      res,
-                      style: const TextStyle(fontSize: 40, color: Colors.white),
-                    ),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      // Long expressions shrink instead of overflowing.
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _logic.expression,
+                          style: const TextStyle(
+                              fontSize: 40, color: Colors.white70),
+                        ),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          _logic.result,
+                          style: const TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
